@@ -41,23 +41,6 @@ class BookshelfState extends State<BookshelfScene> with RouteAware {
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context));
-  }
-
-  @override
-  void didPopNext() {
-    Screen.updateStatusBarStyle(SystemUiOverlayStyle.dark);
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    super.dispose();
-  }
-
   Future<void> fetchData() async {
     try {
       List<Novel> favoriteNovels = [];
@@ -70,17 +53,19 @@ class BookshelfState extends State<BookshelfScene> with RouteAware {
         this.favoriteNovels = favoriteNovels;
       });
     } catch (e) {
-      print(e);
+      Toast.show(e.toString());
     }
   }
 
   Widget buildActions(Color iconColor) {
     return Row(children: <Widget>[
       Container(
+        height: kToolbarHeight,
         width: 44,
         child: Image.asset('img/actionbar_checkin.png', color: iconColor),
       ),
       Container(
+        height: kToolbarHeight,
         width: 44,
         child: Image.asset('img/actionbar_search.png', color: iconColor),
       ),
@@ -94,15 +79,15 @@ class BookshelfState extends State<BookshelfScene> with RouteAware {
         Positioned(
           right: 0,
           child: Container(
-            margin: EdgeInsets.fromLTRB(5, Screen.statusBarHeight(context), 0, 0),
+            margin: EdgeInsets.fromLTRB(5, Screen.topSafeHeight, 0, 0),
             child: buildActions(SQColor.white),
           ),
         ),
         Opacity(
           opacity: navAlpha,
           child: Container(
-            padding: EdgeInsets.fromLTRB(5, Screen.statusBarHeight(context), 0, 0),
-            height: Screen.navigationBarHeight(context),
+            padding: EdgeInsets.fromLTRB(5, Screen.topSafeHeight, 0, 0),
+            height: Screen.navigationBarHeight,
             color: SQColor.white,
             child: Row(
               children: <Widget>[
@@ -133,7 +118,7 @@ class BookshelfState extends State<BookshelfScene> with RouteAware {
     novels.forEach((novel) {
       children.add(BookshelfItemView(novel));
     });
-    var width = (Screen.width(context) - 15 * 2 - 24 * 2) / 3;
+    var width = (Screen.width - 15 * 2 - 24 * 2) / 3;
     children.add(GestureDetector(
       onTap: () {
         eventBus.emit(EventToggleTabBarIndex, 1);
@@ -158,20 +143,23 @@ class BookshelfState extends State<BookshelfScene> with RouteAware {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: SQColor.white,
-      body: Stack(children: [
-        RefreshIndicator(
-          onRefresh: fetchData,
-          child: ListView(
-            padding: EdgeInsets.only(top: 0),
-            controller: scrollController,
-            children: <Widget>[
-              favoriteNovels.length > 0 ? BookshelfHeader(favoriteNovels[0]) : Container(),
-              buildFavoriteView(),
-            ],
+      body: AnnotatedRegion(
+        value: navAlpha > 0.5 ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+        child: Stack(children: [
+          RefreshIndicator(
+            onRefresh: fetchData,
+            child: ListView(
+              padding: EdgeInsets.only(top: 0),
+              controller: scrollController,
+              children: <Widget>[
+                favoriteNovels.length > 0 ? BookshelfHeader(favoriteNovels[0]) : Container(),
+                buildFavoriteView(),
+              ],
+            ),
           ),
-        ),
-        buildNavigationBar(),
-      ]),
+          buildNavigationBar(),
+        ]),
+      ),
     );
   }
 }

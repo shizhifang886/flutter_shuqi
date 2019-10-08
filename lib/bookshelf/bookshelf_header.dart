@@ -20,8 +20,8 @@ class _BookshelfHeaderState extends State<BookshelfHeader> with SingleTickerProv
   @override
   initState() {
     super.initState();
-    controller = new AnimationController(duration: const Duration(milliseconds: 2000), vsync: this);
-    animation = new Tween(begin: 0.0, end: 1.0).animate(controller);
+    controller = AnimationController(duration: const Duration(milliseconds: 2000), vsync: this);
+    animation = Tween(begin: 0.0, end: 1.0).animate(controller);
 
     animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -40,9 +40,9 @@ class _BookshelfHeaderState extends State<BookshelfHeader> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    var width = Screen.width(context);
+    var width = Screen.width;
     var bgHeight = width / 0.9;
-    var height = Screen.statusBarHeight(context) + 250;
+    var height = Screen.topSafeHeight + 250;
     return Container(
       width: width,
       height: height,
@@ -73,10 +73,10 @@ class _BookshelfHeaderState extends State<BookshelfHeader> with SingleTickerProv
   Widget buildContent(BuildContext context) {
     Novel novel = this.widget.novel;
 
-    var width = Screen.width(context);
+    var width = Screen.width;
     return Container(
       width: width,
-      padding: EdgeInsets.fromLTRB(15, 54 + Screen.statusBarHeight(context), 10, 0),
+      padding: EdgeInsets.fromLTRB(15, 54 + Screen.topSafeHeight, 10, 0),
       color: Colors.transparent,
       child: GestureDetector(
         onTap: () {
@@ -87,7 +87,7 @@ class _BookshelfHeaderState extends State<BookshelfHeader> with SingleTickerProv
           children: <Widget>[
             DecoratedBox(
               child: NovelCoverImage(novel.imgUrl, width: 120, height: 160),
-              decoration: BoxDecoration(boxShadow: [BoxShadow(color: Color(0x22000000), blurRadius: 8)]),
+              decoration: BoxDecoration(boxShadow: Styles.borderShadow),
             ),
             SizedBox(width: 20),
             Expanded(
